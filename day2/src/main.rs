@@ -12,36 +12,30 @@ enum Outcome {
     Draw,
 }
 
-fn outcome(opponent: Shape, response: Shape) -> Outcome {
-    if opponent == response {
-        Outcome::Draw
-    } else if opponent == Shape::Rock {
-        if response == Shape::Scissors {
-            Outcome::Loss
-        } else {
-            Outcome::Win
-        }
-    } else if opponent == Shape::Paper {
-        if response == Shape::Scissors {
-            Outcome::Win
-        } else {
-            Outcome::Loss
-        }
-    } else if response == Shape::Rock {
-        Outcome::Win
-    } else {
-        Outcome::Loss
+fn desired_shape(opponent: Shape, desired: Outcome) -> Shape {
+    match desired {
+        Outcome::Win => match opponent {
+            Shape::Rock => Shape::Paper,
+            Shape::Paper => Shape::Scissors,
+            Shape::Scissors => Shape::Rock,
+        },
+        Outcome::Loss => match opponent {
+            Shape::Rock => Shape::Scissors,
+            Shape::Paper => Shape::Rock,
+            Shape::Scissors => Shape::Paper,
+        },
+        Outcome::Draw => opponent,
     }
 }
 
-fn score(opponent: Shape, response: Shape) -> usize {
-    let outcome_score = match outcome(opponent, response) {
+fn score(opponent: Shape, desired: Outcome) -> usize {
+    let outcome_score = match desired {
         Outcome::Win => 6,
         Outcome::Loss => 0,
         Outcome::Draw => 3,
     };
 
-    let shape_score = match response {
+    let shape_score = match desired_shape(opponent, desired) {
         Shape::Rock => 1,
         Shape::Paper => 2,
         Shape::Scissors => 3,
@@ -50,23 +44,29 @@ fn score(opponent: Shape, response: Shape) -> usize {
     outcome_score + shape_score
 }
 
-fn parse(c: &str) -> Shape {
-    if c == "A" || c == "X" {
-        Shape::Rock
-    } else if c == "B" || c == "Y" {
-        Shape::Paper
-    } else if c == "C" || c == "Z" {
-        Shape::Scissors
-    } else {
-        panic!("Unknown shape {}", c)
+fn parse_shape(s: &str) -> Shape {
+    match s {
+        "A" => Shape::Rock,
+        "B" => Shape::Paper,
+        "C" => Shape::Scissors,
+        _ => panic!("Unknown shape"),
+    }
+}
+
+fn parse_desired(s: &str) -> Outcome {
+    match s {
+        "X" => Outcome::Loss,
+        "Y" => Outcome::Draw,
+        "Z" => Outcome::Win,
+        _ => panic!("Unknown outcome"),
     }
 }
 
 fn main() {
     let score = include_str!("input.txt")
         .lines()
-        .map(|l| l.split(' ').map(parse).collect::<Vec<_>>())
-        .map(|g| score(g[0], g[1]))
+        .map(|l| l.split(' ').collect::<Vec<_>>())
+        .map(|g| score(parse_shape(g[0]), parse_desired(g[1])))
         .sum::<usize>();
 
     println!("{score}");

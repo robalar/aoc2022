@@ -1,16 +1,25 @@
 use std::collections::HashSet;
 
+use itertools::Itertools;
+
 fn main() {
     let lines = include_str!("input.txt")
         .lines()
-        .map(|l| l.split_at(l.len() / 2))
-        .map(|l| {
-            let left: HashSet<char> = l.0.chars().collect();
-            let right: HashSet<char> = l.1.chars().collect();
+        .chunks(3)
+        .into_iter()
+        .map(|chunk| {
+            let sets = chunk
+                .map(|l| l.chars().collect::<HashSet<_>>())
+                .collect::<Vec<_>>();
 
-            left.intersection(&right).copied().collect::<HashSet<_>>()
+            let ab = sets[0]
+                .intersection(&sets[1])
+                .copied()
+                .collect::<HashSet<_>>();
+            let common = ab.intersection(&sets[2]).copied();
+
+            common.map(get_priority).sum::<usize>()
         })
-        .map(|s| s.into_iter().map(get_priority).sum::<usize>())
         .sum::<usize>();
 
     dbg!(lines);

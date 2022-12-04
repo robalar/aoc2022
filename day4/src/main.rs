@@ -17,7 +17,7 @@ fn main() {
         };
 
         (get_range(first), get_range(second))
-    }).filter(|(x, y)| x.contains(y.start()) && x.contains(y.end()) || y.contains(x.start()) && y.contains(x.end())).count();
+    }).filter(|(x, y)| x.contains(y.start()) || x.contains(y.end()) || y.contains(x.start()) || y.contains(x.end())).count();
 
     dbg!(input);
 }

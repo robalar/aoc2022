@@ -9,9 +9,6 @@ use nom::{
 };
 
 #[derive(Debug)]
-struct Crate<'a>(&'a str);
-
-#[derive(Debug)]
 struct Instruction {
     count: usize,
     from: usize,
@@ -40,19 +37,22 @@ fn main() {
             }
         }
 
+        stack.reverse();
         for c in stack {
             parsed_initial[instruction.to - 1].push(c)
         }
     }
 
     for tower in parsed_initial {
-        print!("{:?}", tower.last().unwrap())
+        print!("{}", tower.last().unwrap())
     }
+    println!();
+    
 }
 
 // Crate parsing
 
-fn get_initial_setup(initial: &str) -> Vec<Vec<Crate>> {
+fn get_initial_setup(initial: &str) -> Vec<Vec<&str>> {
     let mut setup = initial.lines().rev();
     setup.next();
 
@@ -62,13 +62,13 @@ fn get_initial_setup(initial: &str) -> Vec<Vec<Crate>> {
         .collect()
 }
 
-fn parse_line(input: &str) -> IResult<&str, Vec<Option<Crate>>> {
+fn parse_line(input: &str) -> IResult<&str, Vec<Option<&str>>> {
     let (input, crates) = separated_list0(tag(" "), parse_crate)(input)?;
 
     Ok((input, crates))
 }
 
-fn parse_crate(input: &str) -> IResult<&str, Option<Crate>> {
+fn parse_crate(input: &str) -> IResult<&str, Option<&str>> {
     let crate_parser = delimited(char('['), take(1usize), char(']'));
     let empty = tag("   ");
 
@@ -77,7 +77,7 @@ fn parse_crate(input: &str) -> IResult<&str, Option<Crate>> {
     if c == "   " {
         Ok((input, None))
     } else {
-        Ok((input, Some(Crate(c))))
+        Ok((input, Some(c)))
     }
 }
 
